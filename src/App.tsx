@@ -1,4 +1,3 @@
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Main from "./pages/Main";
 import PostForm from "./components/PostForm";
@@ -9,6 +8,7 @@ import ADN from "./components/ADN";
 import SW from "./components/SW";
 import Push from "./components/Push";
 import Mongo from "./components/Mongo";
+import Agar from "./pages/Agar";
 
 const router = createBrowserRouter([
   {
@@ -48,6 +48,10 @@ const router = createBrowserRouter([
         element: <Mongo />,
       },
     ],
+  },
+  {
+    path: "/agar",
+    element: <Agar />,
   },
 ]);
 
