@@ -19,6 +19,7 @@ const columns = [
   columnHelper.accessor("firstName", {
     id: "firstName",
     cell: (info) => info.getValue(),
+    header: () => <span>First Name</span>,
   }),
   columnHelper.accessor((row) => row.lastName, {
     id: "lastName",
@@ -27,7 +28,7 @@ const columns = [
   }),
   columnHelper.accessor("birthDate", {
     id: "birthDate",
-    header: () => "birthDate",
+    header: () => "Birthdate",
     cell: (info) => format(new Date(info.getValue()), "dd/MM/yyyy"),
   }),
 ];
