@@ -9,6 +9,14 @@ import SW from "./components/SW";
 import Push from "./components/Push";
 import Mongo from "./components/Mongo";
 import Agar from "./pages/Agar";
+import Login from "./pages/Login";
+import Secure from "./pages/Secure";
+import Logout from "./pages/Logout";
+import LoginSSO from "./pages/LoginSSO";
+import Callback from "./pages/Callback";
+import SecureSSO from "./pages/SecureSSO";
+import IA from "./components/IA";
+import Tchat from "./pages/Tchat";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +60,38 @@ const router = createBrowserRouter([
   {
     path: "/agar",
     element: <Agar />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/loginSSO",
+    element: <LoginSSO />,
+  },
+  {
+    path: "/callback",
+    element: <Callback />,
+  },
+  {
+    path: "/logout",
+    element: <Logout />,
+  },
+  {
+    path: "/secure",
+    element: <Secure />,
+  },
+  {
+    path: "/secureSSO",
+    element: <SecureSSO />,
+  },
+  {
+    path: "/IA",
+    element: <IA />,
+  },
+  {
+    path: "/tchat",
+    element: <Tchat />,
   },
 ]);
 
