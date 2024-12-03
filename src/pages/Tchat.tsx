@@ -18,27 +18,30 @@ type Message = {
 
 const Tchat = () => {
   const [channel, setChannel] = useState("general");
+  const [channels, setChannels] = useState(["general"]);
   const [user, setUser] = useState<User | null>(null);
   const [userList, setUserList] = useState<User[]>([]);
   const [msg, setMsg] = useState("");
   const [msgs, setMsgs] = useState<Message[]>([]);
   const init = useRef(false);
-  let filterRedMessage;
+  let filteredMessage;
 
-  const findUserById = (id: string) => {
-    const found = userList.find((u) => u.id === id);
-    return found?.login;
+  const findUserByName = (name: string) => {
+    const found = userList.find((u) => u.login === name);
+    return found;
   };
 
   if (channel === "general") {
-    filterRedMessage = msgs;
+    filteredMessage = msgs.filter((m) => m.mp === false);
   } else {
-    filterRedMessage = msgs.filter(
-      (m) => m.from.id === channel && m.mp === true
+    filteredMessage = msgs.filter(
+      (m) =>
+        (m.from.id === channel && m.mp === true) ||
+        (m.from.id === user?.id && m.mp === true)
     );
   }
 
-  console.log(filterRedMessage, msgs);
+  console.log(filteredMessage, msgs);
 
   const sendMessage = () => {
     socket.emit("send", {
@@ -50,9 +53,26 @@ const Tchat = () => {
     setMsg("");
   };
 
-  const changeChannel = (userId: string) => {
-    setChannel(userId);
+  const changeChannel = (user: User) => {
+    setChannel(user.id);
+    if (!channels.includes(user.login)) {
+      setChannels((prev) => [...prev, user.login]);
+    }
   };
+
+  useEffect(() => {
+    const userName = window.prompt("Quel est votre nom ?");
+    const newUser = { id: uuidv4(), login: userName ?? "" };
+
+    setUser(newUser);
+    setUserList((prev) => [...prev, newUser]);
+
+    socket.emit("user-join", newUser);
+
+    return () => {
+      socket.off("user-join");
+    };
+  }, []);
 
   useEffect(() => {
     socket.on("user-list", (users: User[]) => {
@@ -90,27 +110,38 @@ const Tchat = () => {
       socket.off(user.id);
     };
   }, [user]);
-
-  useEffect(() => {
-    const userName = window.prompt("Quel est votre nom ?");
-    const newUser = { id: uuidv4(), login: userName ?? "" };
-    setUser(newUser);
-    setUserList((prev) => [...prev, newUser]);
-    socket.emit("user-join", newUser);
-
-    return () => {
-      socket.off("user-join");
-    };
-  }, []);
-
   return (
     <div className="flex flex-col border-[1px] border-black w-[800px] h-[600px] mx-auto">
       <div className="w-full flex-1 flex">
         <div className="flex-1 overflow-scroll border-r-[1px] border-r-gray-200 p-2">
-          {channel === "general"
-            ? "Général"
-            : `Conversation privé avec ${findUserById(channel)}`}
-          {filterRedMessage.map((msg, i) => {
+          <div className="my-3">
+            {channels.map((ch) => {
+              if (ch === "general") {
+                return (
+                  <span
+                    onClick={() => setChannel("general")}
+                    className={`p-2 cursor-pointer ml-2 border border-black ${
+                      channel === ch && "font-bold"
+                    }`}
+                  >
+                    {ch}
+                  </span>
+                );
+              }
+              const user = findUserByName(ch);
+              return (
+                <span
+                  onClick={() => setChannel(user?.id ?? "")}
+                  className={`p-2 cursor-pointer ml-2 border border-black ${
+                    channel === user?.id && "font-bold"
+                  }`}
+                >
+                  {ch}
+                </span>
+              );
+            })}
+          </div>
+          {filteredMessage.map((msg, i) => {
             return (
               <span key={i} className="cursor-pointer w-full inline-block">
                 {msg.from.login === user?.login ? "Vous" : msg.from.login}:{" "}
@@ -120,14 +151,16 @@ const Tchat = () => {
           })}
         </div>
         <div className="w-[200px]">
-          <ul>
+          <ul className="p-2">
             {userList.map((u) => {
               return (
                 <li
                   onClick={() => {
-                    changeChannel(u.id);
+                    changeChannel(u);
                   }}
-                  className={`${u.id === user?.id ? "font-bold" : ""}`}
+                  className={`${
+                    u.id === user?.id ? "font-bold pointer-events-none" : ""
+                  } cursor-pointer`}
                   key={u.id}
                 >
                   {u.login}

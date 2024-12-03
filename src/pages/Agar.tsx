@@ -47,7 +47,7 @@ const Agar = () => {
       });
     });
     return () => {
-      socket.off("playerlist");
+      socket.off("new-player");
     };
   }, []);
 
